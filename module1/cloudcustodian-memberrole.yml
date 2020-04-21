@@ -1,0 +1,137 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Security Hub Remediations Workshop - Base Environment'
+Parameters:
+  MasterAccountId:
+    Type: String
+    Description: 'Master AWS AccountId'
+    MinLength: 12
+    MaxLength: 12
+
+  CostCenter:
+    Type: 'String'
+    Default: 'SecurityHubWorkshop'
+    Description: 'Value to use for the CostCenter tag applied to taggable resources created by this Workshop'
+
+Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+      - E3002
+
+Resources:
+
+  CloudCustodianPolicyActions:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: "IAM Actions required to execute to Actions part of a CloudCustodian policies"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Sid: "CCPolicyActionExecution"
+            Effect: "Allow"
+            Action:
+              - "ssm:SendCommand"
+              - "ssm:ListCommands"
+              - "ssm:CreateOpsItem"
+              - "iam:DeleteAccessKey"
+              - "iam:UpdateAccessKey"
+              - "iam:Tag*"
+              - "iam:UnTag*"
+              - "kms:UntagResource"
+              - "kms:TagResource"
+              - "ec2:CopySnapshot"
+              - "ec2:DeleteSnapshot"
+              - "ec2:CreateImage"
+              - "ec2:CreateSnapshot*"
+              - "ec2:CreateTags"
+              - "ec2:DeleteTags"
+              - "ec2:DeleteSecurityGroup"
+              - "ec2:ModifyVpcAttribute"
+              - "ec2:ModifyInstanceAttribute"
+              - "ec2:AssociateIamInstanceProfile"
+              - "ec2:DisassociateIamInstanceProfile"
+              - "ec2:AuthorizeSecurityGroupIngress"
+              - "ec2:RevokeSecurityGroupIngress"
+              - "ec2:StopInstances"
+              - "ec2:TerminateInstances"
+              - "config:PutEvaluations"
+              - "s3:PutBucketTagging"
+              - "s3:PutBucketLogging"
+              - "s3:PutBucketVersioning"
+              - "s3:PutBucketPolicy"
+              - "s3:DeleteBucket*"
+              - "tag:TagResources"
+              - "tag:UntagResources"
+              - "lambda:TagResource"
+              - "lambda:UntagResource"
+              - "lambda:DeleteFunction"
+              - "elasticfilesystem:CreateTags"
+              - "elasticfilesystem:DeleteTags"
+              - "logs:TagLogGroup"
+              - "logs:UntagLogGroup"
+              - "rds:*TagsToResource"
+              - "rds:Delete*"
+              - "rds:CreateDBSnapshot"
+              - "rds:Stop*"
+              - "elasticache:*Snapshot"
+              - "elasticache:DeleteCacheCluster"
+              - "dynamodb:DeleteTable"
+              - "dynamodb:TagResource"
+              - "dynamodb:UntagResource"
+              - "es:DeleteElasticsearchDomain"
+              - "es:*Tags"
+              - "elasticmapreduce:TerminateJobFlows"
+              - "elasticmapreduce:*Tags"
+              - "redshift:DeleteCluster"
+              - "redshift:*Tags"
+              - "autoscaling:DetachInstances"
+              - "autoscaling:*Tags"
+              - "autoscaling:*Processes"
+              - "autoscaling:Terminate*"
+              - "autoscaling:Set*"
+              - "autoscaling:*Standby"
+              - "kinesis:*Stream"
+              - "kinesisanalytics:DeleteApplication"
+            Resource: "*"
+          -
+            Sid: "CCSecurityHubActions"
+            Effect: "Allow"
+            Action:
+              - "securityhub:UpdateFindings"
+              - "securityhub:BatchImportFindings"
+              - "securityhub:CreateActionTarget"
+              - "securityhub:UpdateActionTarget"
+              - "securityhub:SendFindingEvents"
+            Resource: "*"
+          -
+            Sid: "LambdasInVpc"
+            Effect: "Allow"
+            Action:
+              - "ec2:DeleteNetworkInterface"
+              - "ec2:CreateNetworkInterface"
+            Resource: "*"
+
+  CloudCustodianLambdaExecutionMember:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "CloudCustodianMember"
+      Description: "Actions needed for the Cloud Custodian in Lambda mode"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              AWS:
+                - !Sub 'arn:aws:sts::${MasterAccountId}:assumed-role/CloudCustodian/custodian-*'
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/SecurityAudit"
+        - "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+        - Ref: "CloudCustodianPolicyActions"
+      Tags:
+        - Key: "CostCenter"
+          Value: !Ref "CostCenter"

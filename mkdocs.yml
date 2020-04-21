@@ -1,0 +1,56 @@
+# Project information
+
+site_name: Security Hub Automated Remediations
+site_short_name: Security Hub Remediations
+site_description: 'This hands-on workshop is where you will learn about how to implement automated remediations of findings submitted to AWS Security Hub.  You will learn about AWS services including CloudWatch Events, Cloudwatch Logs, AWS Lambda, Amazon GuardDuty, Amazon Security Hub and well as learn about using the open source tool Cloud Custodian to leverage these services.'
+site_author: 'aws-security-workshops@amazon.com'
+site_url: 'https://securityhubremediations.awssecworkshops.com/'
+
+# Repository
+repo_name: 'FireballDWF/securityhub-remediations'
+repo_url: 'https://github.com//FireballDWF/securityhub-remediations/'
+
+# Copyright
+copyright: '&copy; 2020, Amazon Web Services, Inc. or its affiliates. All rights reserved.'
+
+# Configuration
+theme:
+  name: 'material'
+  logo: 'assets/images/aws_smile_logo.png'
+  favicon: 'assets/images/aws-favicon.ico'
+  feature:
+    tabs: true
+  custom_dir: 'docs/theme'
+
+# Customization
+extra_css:
+  - 'stylesheets/custom.css'
+extra:
+  social:
+    - type: 'home'
+      link: 'https://awssecworkshops.com'
+    - type: 'shield'
+      link: 'https://aws.amazon.com/security/'
+    - type: 'twitter'
+      link: 'https://twitter.com/awssecurityinfo?lang=en'
+    - type: 'rss'
+      link: 'https://aws.amazon.com/blogs/security/'
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - codehilite
+  - pymdownx.details
+
+# Navigation
+nav:
+  - 'Overview': 'index.md'
+  - 'Module 1: Environment Build': '01-environment-setup.md'
+  - 'Module 2: GuardDuty DNS Event on EC2 Instance': '02-guardduty-dns-event.md'
+  - 'Module 3: Security Hub Custom Actions': '03-securityhub-custom-actions.md'
+  - 'Module 4: Vulnerability Event on EC2 Instance with Very Risky Configuration': '04-ec2-instance-high-risk-config.md'
+  - 'Module 5: GuardDuty Event on IAMUser': '05-guardduty-iam-user.md'
+  - 'Module 6: Remediate an Public EBS-Snapshot': '06-ebs-snapshot-public.md'
+  - 'Module 7: Cleanup of resources': '07-cleanup.md'
+  - Contributing: 'contribute.md'
+  - License: 'license.md'

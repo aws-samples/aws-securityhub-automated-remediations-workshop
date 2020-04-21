@@ -1,0 +1,46 @@
+policies:
+  - name: ec2-public-ingress-s3-readable-kms-decrypt
+    description: filters for ec2 instances with security-groups with ingress rule allowing public access
+    resource: ec2
+    filters:
+      - type: value
+        key: PublicIpAddress
+        value: not-null
+      - type: value
+        key: IamInstanceProfile
+        value: not-null
+      - type: security-group
+        key: IpPermissions[].IpRanges[].CidrIp
+        value_type: swap
+        op: in
+        value: "0.0.0.0/0" # anywhere
+      - type: check-permissions
+        match: allowed
+        match-operator: or
+        actions:
+          - s3:GetObject
+          - s3:GetObjectVersion
+          - s3:PutBucketWebsite
+          - s3:PutReplicationConfiguration
+          - s3:*
+      - type: check-permissions
+        match: allowed
+        match-operator: or
+        actions:
+          - kms:Decrypt
+          - kms:*
+    actions:
+      - type: post-finding
+        severity_normalized: 70
+        types:
+        - "Software and Configuration Checks/AWS Security Best Practices"
+        recommendation: "Read the Well Architected Security Pillar Whitepaper with a focus on least priviledge, Perform a Well Architected Review and/or hire AWS Professional Services provided recommended changes to the architecture"
+        recommendation_url: "https://d1.awsstatic.com/whitepapers/architecture/AWS-Security-Pillar.pdf"
+        criticality: 100
+        confidence: 99
+        compliance_status: FAILED
+      # Uncomment the following line to auto-remediate, but application breakage will occur if there are application dependencies on the instance profile granted privileges
+      #- type: set-instance-profile
+        # By not specifying a name, will effectively disassociate-iam-instance-profile from matching ec2 instances
+      - type: post-item
+        priority: 1

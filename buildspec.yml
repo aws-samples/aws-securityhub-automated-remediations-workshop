@@ -1,0 +1,85 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+      # docker: 18
+    commands:
+      # - echo Entered the install phase...
+      # - yum update -y
+      # - yum upgrade  -y
+      # - pip3 install -U awscli
+    finally:
+      #- echo This always runs even if the update or install command fails
+  pre_build:
+    commands:
+      # - echo Entered the pre_build phase...
+      - echo $STACKACTION
+    finally:
+      #- echo This always runs even if the login command fails
+  build:
+    commands:
+      # - echo Entered the build phase at `date`
+      - aws cloudformation deploy --template-file module1/securityhub-remediations-workshop.yml
+            --stack-name $STACKPREFIX
+            --capabilities CAPABILITY_NAMED_IAM
+            --no-fail-on-empty-changeset
+            --parameter-overrides $STACKPARAMETERS
+      #  suspected defect on validation regex    --tags Key=CostCenterViaStack,Value=SecurityHubWorkshop
+      - export CLIINSTANCE=$(aws ec2 describe-instances
+                            --filters Name="tag:aws:cloud9:environment",Values=`aws cloudformation describe-stack-resource --stack-name $STACKPREFIX
+                            --logical-resource-id SecHubWorkshopEnv --query StackResourceDetail.PhysicalResourceId --output text` Name=instance-state-name,Values=running --query Reservations[*].Instances[*].[InstanceId] --output text)
+      - echo ${CLIINSTANCE}
+      - |
+        if expr "${CLIINSTANCE}" : "" >/dev/null;
+        then
+          echo "Can't determine instance-id of cloud9 env"
+          exit 1
+        fi
+      - |
+        if [ ${STACKACTION} == 'create' ]
+        then
+          # Following is required for the instance to be able to connect to ssm in order to receive send-command.
+          aws ec2 associate-iam-instance-profile --iam-instance-profile Name=SecurityHubRemediationWorkshopCli --instance-id $CLIINSTANCE && sleep 220;
+          export GITCMD="git clone --single-branch --branch master https://github.com/FireballDWF/securityhub-remediations.git && cd securityhub-remediations"
+        else
+          export GITCMD="cd securityhub-remediations && git pull"
+        fi
+      - export COMMANDID=$(aws ssm send-command --document-name AWS-RunShellScript
+            --targets Key=instanceids,Values=$CLIINSTANCE --comment "CodeBuild Test $CODEBUILD_BUILD_NUMBER"
+            --cloud-watch-output-config CloudWatchLogGroupName=$CWLGROUPNAME,CloudWatchOutputEnabled=true
+            --parameters  commands=["$GITCMD &&
+                                    aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $(aws sts get-caller-identity --query Account --output text).dkr.ecr.$AWS_REGION.amazonaws.com  &&
+                                    docker pull ${SECHUBWORKSHOP_CONTAINER} &&
+                                    docker run -i --rm --cap-drop ALL
+                                    -v /home/ec2-user/environment/securityhub-remediations:/home/custodian/securityhub-remediations:ro -v /home/ec2-user/.aws:/home/custodian/.aws:ro
+                                    --env AWS_STS_REGIONAL_ENDPOINTS
+                                    ${SECHUBWORKSHOP_CONTAINER}
+                                    run -s /tmp --cache-period 0 --trace -c
+                                    securityhub-remediations/module1/force-vulnerability-finding.yml
+                                    securityhub-remediations/module3/ec2-sechub-custom-actions.yml
+                                    securityhub-remediations/module2/ec2-sechub-remediate-severity-with-findings.yml
+                                    securityhub-remediations/module4/ec2-public-ingress-hubfinding.yml
+                                    securityhub-remediations/module5/iam-user-hubfinding-remediate-disable.yml
+                                    securityhub-remediations/module6/post-ebs-snapshot-public.yml"],workingDirectory="/home/ec2-user/environment" --query Command.CommandId --output text)
+
+      #  same output as the send-command logging --log-driver=awslogs --log-opt awslogs-region=$AWS_REGION --log-opt awslogs-group=cloudcustodian-docker --log-opt awslogs-create-group=true
+      - sleep 40
+      - echo $COMMANDID
+      - aws ssm list-commands --command-id $COMMANDID --query Commands[0].[Status,StatusDetails,ErrorCount] --output text
+      - aws logs get-log-events --log-group-name $CWLGROUPNAME --query events[*].message --log-stream-name $COMMANDID/$CLIINSTANCE/aws-runShellScript/stdout
+      - aws logs get-log-events --log-group-name $CWLGROUPNAME --query events[*].message --log-stream-name $COMMANDID/$CLIINSTANCE/aws-runShellScript/stderr
+      - aws logs get-log-events --log-group-name $CWLGROUPNAME --query events[*].message --log-stream-name $COMMANDID/$CLIINSTANCE/aws-runShellScript/stderr | grep 'Provisioning policy lambda RemPA'
+    finally:
+      #- echo This always runs even if the install command fails
+  post_build:
+    commands:
+      # - echo Entered the post_build phase...
+      - |
+        if [ "$DELETESTACK" = "True" ]; then
+          aws cloudformation delete-stack --stack-name $STACKPREFIX
+        fi
+      # - aws --version
+      # - cat /etc/system-release
+      - echo Build completed on `date`

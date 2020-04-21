@@ -1,0 +1,33 @@
+policies:
+  - name: ec2-public-ingress
+    description: filters for ec2 instances with security-groups with ingress rule allowing public access
+    resource: ec2
+    filters:
+      - type: value
+        key: PublicIpAddress
+        value: not-null
+      - type: value
+        key: IamInstanceProfile
+        value: not-null
+      # describe level data does not appear to be available
+      - type: security-group
+        key: IpPermissions[].IpRanges[].CidrIp
+        value_type: swap
+        op: in
+        value: "0.0.0.0/0" # anywhere
+      - type: check-permissions
+        match: allowed
+        match-operator: or
+        actions:
+          - s3:GetObject
+          - s3:GetObjectVersion
+          - s3:PutBucketWebsite
+          - s3:PutReplicationConfiguration
+          - s3:*
+    actions:
+      # snapshot the disk for forensics
+      - type: snapshot
+        copy-tags: [Name]
+      # Remove priviledges from the instance
+      - type: set-instance-profile
+      # remove from any ASG or clustering - Enhancement request (at least for ASG.  Clustering TBD)

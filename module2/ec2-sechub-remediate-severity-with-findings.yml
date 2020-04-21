@@ -1,0 +1,42 @@
+policies:
+  - name: ec2-sechub-remediate-severity-with-findings
+    description: Security Finding imported filtering on Severity >= Medium/31, Name, and a previous report of a Vulnerability
+    resource: ec2
+    mode:
+        type: hub-finding
+        role: arn:aws:iam::{account_id}:role/CloudCustodian
+        member-role: arn:aws:iam::{account_id}:role/CloudCustodianMember
+        memory: 256
+        concurrency: 1
+        tags:
+          CostCenter: SecurityHubWorkshop
+          CreatedBy: CloudCustodian
+    filters:
+      #- type: event
+      #  key: "detail.findings[].ProductFields.aws/securityhub/ProductName"
+      #  value: GuardDuty
+      - type: event
+        key: detail.findings[0].Resources[0].Type
+        value: AwsEc2Instance
+      # Filter for medium and high severity events from GuardDuty
+      - type: event
+        key: detail.findings[0].Severity.Normalized
+        op: gte
+        value: 31
+      - type: value
+        key: tag:Name
+        value: RemediationTestTarget
+      - type: finding
+        query:
+          Type:
+            - Value: "Software and Configuration Checks/Vulnerabilities"
+              Comparison: EQUALS
+    actions:
+      # - type: set-instance-profile
+      # snapshot the disk for forensics
+      - type: snapshot
+        copy-tags: [Name]
+
+
+# Test Hint
+# aws ssm send-command --document-name AWS-RunShellScript --parameters commands=["nslookup guarddutyc2activityb.com"] --targets "Key=Tag:Name,Values=RemediationTestTarget" --comment "Force GuardDutyFinding" --cloud-watch-output-config CloudWatchLogGroupName=/aws/ssm/AWS-RunShellScript,CloudWatchOutputEnabled=true

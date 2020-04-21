@@ -1,0 +1,23 @@
+policies:
+  - name: iam-user-hubfinding-remediate-disable
+    description: SecurityHub finding filter for calls from malicious IPs with action of removing-keys
+    resource: iam-user
+    mode:
+        type: hub-finding
+        role: arn:aws:iam::{account_id}:role/CloudCustodian
+        member-role: arn:aws:iam::{account_id}:role/CloudCustodianMember
+        #packages: [botocore, boto3, urllib3, aws_xray_sdk]
+        memory: 128
+        concurrency: 1
+        tags:
+          CostCenter: SecurityHubWorkshop
+          CreatedBy: CloudCustodian
+        #execution-options:
+        #  tracer: xray
+    filters:
+      - type: event
+        key: detail.findings[0].Types[0]
+        value: "TTPs/UnauthorizedAccess:IAMUser-MaliciousIPCaller"
+    actions:
+      - type: remove-keys
+        disable: true
