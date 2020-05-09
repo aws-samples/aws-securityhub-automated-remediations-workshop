@@ -6,18 +6,20 @@ policies:
         type: hub-finding
         role: arn:aws:iam::{account_id}:role/CloudCustodian
         member-role: arn:aws:iam::{account_id}:role/CloudCustodianMember
-        #packages: [botocore, boto3, urllib3, aws_xray_sdk]
         memory: 128
-        concurrency: 1
         tags:
           CostCenter: SecurityHubWorkshop
           CreatedBy: CloudCustodian
-        #execution-options:
-        #  tracer: xray
-    filters:
-      - type: event
-        key: detail.findings[0].Types[0]
-        value: "TTPs/UnauthorizedAccess:IAMUser-MaliciousIPCaller"
+        pattern:
+          detail:
+            findings:
+              Resources:
+                "Type": ["AwsIamAccessKey"]
+              "Types": ["TTPs/UnauthorizedAccess:IAMUser-MaliciousIPCaller"]
+              Severity:
+                Label: ["MEDIUM", "HIGH", "CRITICAL"]
+        tracing_config:
+          Mode: Active
     actions:
       - type: remove-keys
         disable: true

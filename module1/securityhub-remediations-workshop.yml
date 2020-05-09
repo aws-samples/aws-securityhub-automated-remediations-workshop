@@ -1056,3 +1056,24 @@ Resources:
         -
           Key: CostCenter
           Value: !Ref "CostCenter"
+  AlarmCustodianIamUserHubfindingRemediateDisable:
+    Type: AWS::CloudWatch::Alarm
+    Properties: 
+      ActionsEnabled: true
+      AlarmActions: 
+        - "arn:aws:sns:us-east-1:369510138361:lambdanotifications"
+      AlarmDescription: Error from Lambda
+      AlarmName: Error-custodian-iam-user-hubfinding-remediate-disable
+      ComparisonOperator: GreaterThanThreshold
+      DatapointsToAlarm: 1
+      Dimensions: 
+        - Name: FunctionName
+          Value: custodian-iam-user-hubfinding-remediate-disable
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 300
+      Statistic: Maximum
+      Threshold: 0.0
+      TreatMissingData: notBreaching
+
