@@ -18,8 +18,8 @@ policies:
               "Types": ["TTPs/UnauthorizedAccess:IAMUser-MaliciousIPCaller"]
               Severity:
                 Label: ["MEDIUM", "HIGH", "CRITICAL"]
-        tracing_config:
-          Mode: Active
+        #tracing_config:
+        #  Mode: Active
     actions:
       - type: remove-keys
         disable: true
