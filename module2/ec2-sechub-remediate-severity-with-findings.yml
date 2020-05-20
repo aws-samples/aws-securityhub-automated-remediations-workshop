@@ -1,31 +1,28 @@
 policies:
   - name: ec2-sechub-remediate-severity-with-findings
-    description: Security Finding imported filtering on Severity >= Medium/31, Name, and a previous report of a Vulnerability
+    description: Security Finding imported filtering on Severity >= Medium, Name, and a previous report of a Vulnerability
     resource: ec2
     mode:
         type: hub-finding
         role: arn:aws:iam::{account_id}:role/CloudCustodian
         member-role: arn:aws:iam::{account_id}:role/CloudCustodianMember
         memory: 256
-        concurrency: 1
+        #concurrency: 1
         tags:
           CostCenter: SecurityHubWorkshop
           CreatedBy: CloudCustodian
+        pattern:
+          detail:
+            findings:
+              Resources:
+                "Type": ["AwsEc2Instance"]
+                Tags:
+                  "Name": ["RemediationTestTarget"]
+              Severity:
+                Label: ["MEDIUM", "HIGH", "CRITICAL"]
+        #tracing_config:
+        #  Mode: Active
     filters:
-      #- type: event
-      #  key: "detail.findings[].ProductFields.aws/securityhub/ProductName"
-      #  value: GuardDuty
-      - type: event
-        key: detail.findings[0].Resources[0].Type
-        value: AwsEc2Instance
-      # Filter for medium and high severity events from GuardDuty
-      - type: event
-        key: detail.findings[0].Severity.Normalized
-        op: gte
-        value: 31
-      - type: value
-        key: tag:Name
-        value: RemediationTestTarget
       - type: finding
         query:
           Type:

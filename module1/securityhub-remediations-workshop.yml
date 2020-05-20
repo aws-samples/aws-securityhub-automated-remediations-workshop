@@ -629,6 +629,8 @@ Resources:
               - 'ssm:GetParameters'
               - 'elasticache:ListTagsForResource'
               - 'support:Describe*'
+              - 'greengrass:Get*'
+              - 'greengrass:List*'
             Resource: "*"
           -
             Sid: "SecurityAuditAdditionsCASE6925812701"
@@ -1072,8 +1074,49 @@ Resources:
       EvaluationPeriods: 1
       MetricName: Errors
       Namespace: AWS/Lambda
-      Period: 300
+      Period: 60
       Statistic: Maximum
       Threshold: 0.0
       TreatMissingData: notBreaching
 
+  AlarmCustodianec2sechubremediateseveritywithfindings:
+    Type: AWS::CloudWatch::Alarm
+    Properties: 
+      ActionsEnabled: true
+      AlarmActions: 
+        - "arn:aws:sns:us-east-1:369510138361:lambdanotifications"
+      AlarmDescription: Error from Lambda
+      AlarmName: Error-custodian-ec2-sechub-remediate-severity-with-findings
+      ComparisonOperator: GreaterThanThreshold
+      DatapointsToAlarm: 1
+      Dimensions: 
+        - Name: FunctionName
+          Value: custodian-ec2-sechub-remediate-severity-with-findings
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Maximum
+      Threshold: 0.0
+      TreatMissingData: notBreaching
+
+  AlarmCustodianec2publicingresshubfinding:
+    Type: AWS::CloudWatch::Alarm
+    Properties: 
+      ActionsEnabled: true
+      AlarmActions: 
+        - "arn:aws:sns:us-east-1:369510138361:lambdanotifications"
+      AlarmDescription: Error from Lambda
+      AlarmName: Error-custodian-ec2-public-ingress-hubfinding
+      ComparisonOperator: GreaterThanThreshold
+      DatapointsToAlarm: 1
+      Dimensions: 
+        - Name: FunctionName
+          Value: custodian-ec2-public-ingress-hubfinding
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Maximum
+      Threshold: 0.0
+      TreatMissingData: notBreaching
