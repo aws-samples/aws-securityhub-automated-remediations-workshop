@@ -17,7 +17,7 @@ To Get started with this workshop as part of the an AWS Event where Event Engine
 4.  If you choose to use an existing VPC, it needs to have connectivity thru an IGW to reach AWS public endpoints as some of the services used do not yet support VPC Endpoints.
 5.  Now we need to download a copy of the CloudFormation template for this Workshop.  If you don't have the program wget, use any other method you are comfortable with, such as curl or a browser.
 
-        wget https://raw.githubusercontent.com/FireballDWF/securityhub-remediations/master/module1/securityhub-remediations-workshop.yml
+        wget https://raw.githubusercontent.com/aws-samples/aws-securityhub-automated-remediations-workshop/master/module1/securityhub-remediations-workshop.yml
 
 6. Next we start to to create the cloudformation stack for the workshop, starting by opening the AWS Console, navigate to Cloudformation, click on the "Create stack" button, select the "With new resources (standard)" option, then in the "Specify template" section, click "Upload a template file", then click "Choose file", and when the File Dialog window pops up, select the file downloaded in the prior step.
 7. Click Next.
@@ -47,7 +47,7 @@ To Get started with this workshop as part of the an AWS Event where Event Engine
 
 6.  The next step is to get a copy of the files required for this workshop by cloning the workshop's github repo specifing the eventengine branch.
 
-        git clone --single-branch --branch master https://github.com/FireballDWF/securityhub-remediations.git && cd securityhub-remediations
+        git clone --single-branch --branch master https://github.com/aws-samples/aws-securityhub-automated-remediations-workshop.git
 
 7.  Next step is to pull down the latest version of the Cloud Custodian docker container image and setup the repeative part of the command line
 
