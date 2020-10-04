@@ -238,7 +238,6 @@ Resources:
               - "securityhub:EnableSecurityHub"
               - "guardduty:CreateDetector"
               - "cloudformation:ValidateTemplate"
-              - "events:TestEventPattern"
             Resource: "*"
           -
             Sid: "SecurityAnalyst"
@@ -624,10 +623,8 @@ Resources:
             Action:
               - "health:Describe*"
               - "glue:GetJobs"
-              - "s3:GetInventoryConfiguration"
               - "sns:ListTagsForResource"
               - 'ssm:GetParameters'
-              - 'elasticache:ListTagsForResource'
               - 'support:Describe*'
               - 'greengrass:Get*'
               - 'greengrass:List*'
@@ -641,7 +638,6 @@ Resources:
               - "support:DescribeTrustedAdvisorCheckResult"
               - "xray:GetEncryptionConfig"
               - "ec2:GetEbsEncryptionByDefault"
-              - "glue:GetDataCatalogEncryptionSettings"
               - "waf-regional:ListResourcesForWebACL"
               - "ecr:GetLifecyclePolicy"
               - "glacier:ListTagsForVault"
@@ -658,7 +654,6 @@ Resources:
               - "schemas:List*"
               - "iam:GenerateOrganizationsAccessReport"
               - "detective:Get*"
-              - "detective:List*"
               - "backup:Describe*"
               - "backup:List*"
             Resource: "*"
