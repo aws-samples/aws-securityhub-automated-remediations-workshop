@@ -222,20 +222,32 @@ Resources:
         Version: "2012-10-17"
         Statement:
           -
-            Sid: "OnlyForCliConductWorkshopOrValidate"
+            Sid: "OnlyForWorkshop"
             Effect: "Allow"
             Action:
               - "ec2:CreateVolume"
               - "ec2:ModifySnapshotAttribute"
               - "ec2:AssociateIamInstanceProfile"
               - "sts:DecodeAuthorizationMessage"
+              - "guardduty:CreateSampleFindings"
+            Resource: "*"
+          -
+            Sid: "SecurityEngineering"
+            Effect: "Allow"
+            Action:
               - "securityhub:EnableSecurityHub"
               - "guardduty:CreateDetector"
-              - "guardduty:CreateSampleFindings"
-              - "guardduty:ArchiveFindings"
               - "cloudformation:ValidateTemplate"
               - "events:TestEventPattern"
+            Resource: "*"
+          -
+            Sid: "SecurityAnalyst"
+            Effect: "Allow"
+            Action:
+              - "guardduty:ArchiveFindings"
               - "cloudwatch:ListMetrics"
+              - "cloudwatch:GetMetricStatistics"
+              - "securityhub:SendFindingEvents"
             Resource: "*"
     Metadata:
       cfn_nag:
@@ -280,6 +292,8 @@ Resources:
               - "lambda:DeleteEventSourceMapping"
               - "lambda:TagResource"
               - "lambda:UntagResource"
+              - "securityhub:*ActionTarget*"
+              - "securityhub:*Insight"
             Resource: "*"
           -
             Sid: "Events"
@@ -300,13 +314,6 @@ Resources:
               - "config:DeleteEvaluationResults"
             Resource: "*"
           -
-            Sid: "ManagedCustom"
-            Effect: "Allow"
-            Action:
-              - "securityhub:*ActionTarget*"
-              - "securityhub:*Insight"
-            Resource: "*"
-          -
             Sid: "CCPassRole"
             Effect: "Allow"
             Action:
@@ -314,6 +321,98 @@ Resources:
             Resource:
               - !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/CloudCustodian'
               - !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/SecurityHubRemediationWorkshopTestTarget'
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: F5
+            reason: "Comfortable with these wildcards on part of action name"
+
+  TaggingPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: "IAM Actions required to Tag Resources"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Sid: "TaggingOnly"
+            Effect: "Allow"
+            Action:
+              - "elasticloadbalancing:AddTags"
+              - "elasticloadbalancing:RemoveTags"
+              - "autoscaling:CreateOrUpdateTags"
+              - "autoscaling:DeleteTags"
+              - "datapipeline:AddTags"
+              - "datapipeline:RemoveTags"
+              - "ds:AddTagsToResource"
+              - "ds:RemoveTagsFromResource"
+              - "dms:AddTagsToResource"
+              - "dms:RemoveTagsFromResource"
+              - "iam:Tag*"
+              - "iam:UnTag*"
+              - "kms:UntagResource"
+              - "kms:TagResource"
+              - "ec2:CreateTags"
+              - "ec2:DeleteTags"
+              - "ecr:TagResource"
+              - "ecr:UntagResource"
+              - "ecs:TagResource"
+              - "ecs:UntagResource"
+              - "eks:TagResource"
+              - "eks:UntagResource"
+              - "elasticache:AddTagsToResource"
+              - "elasticache:RemoveTagsFromResource"
+              - "s3:PutBucketTagging"
+              - "tag:TagResources"
+              - "tag:UntagResources"
+              - "lambda:TagResource"
+              - "lambda:UntagResource"
+              - "elasticfilesystem:CreateTags"
+              - "elasticfilesystem:DeleteTags"
+              - "elasticbeanstalk:AddTags"
+              - "elasticbeanstalk:RemoveTags"
+              - "logs:TagLogGroup"
+              - "logs:UntagLogGroup"
+              - "dynamodb:TagResource"
+              - "dynamodb:UntagResource"
+              - "dax:TagResource"
+              - "dax:UntagResource"
+              - "rds:AddTagsToResource"
+              - "rds:RemoveTagsFromResource"
+              - "es:*Tags"
+              - "elasticmapreduce:*Tags"
+              - "redshift:*Tags"
+              - "sns:TagResource"
+              - "sns:UntagResource"
+              - "states:TagResource"
+              - "states:UntagResource"
+              - "secretsmanager:UntagResource"
+              - "secretsmanager:TagResource"
+              - "sagemaker:DeleteTags"
+              - "sagemaker:AddTags"
+              - "route53domains:UpdateTagsForDomain"
+              - "route53domains:DeleteTagsForDomain"
+              - "dlm:TagResource"
+              - "dlm:UntagResource"
+              - "fsx:TagResource"
+              - "fsx:UntagResource"
+              - "cloudhsm:TagResource"
+              - "cloudhsm:UntagResource"
+              - "kafka:TagResource"
+              - "kafka:UntagResource"
+              - "mq:CreateTags"
+              - "mq:DeleteTags"
+              - "sqs:TagQueue"
+              - "sqs:UntagQueue"
+              - "firehose:TagDeliveryStream"
+              - "firehose:UntagDeliveryStream"
+              - "kinesisanalytics:TagResource"
+              - "kinesisanalytics:UntagResource"
+              - "kinesis:AddTagsToStream"
+              - "kinesis:RemoveTagsFromStream"
+              - "config:TagResource"
+              - "config:UntagResource"
+            Resource: "*"
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -334,20 +433,18 @@ Resources:
               - "ssm:SendCommand"
               - "ssm:ListCommands"
               - "ssm:CreateOpsItem"
-              - "iam:DeleteAccessKey"
-              - "iam:UpdateAccessKey"
-              - "iam:Tag*"
-              - "iam:UnTag*"
-              - "kms:UntagResource"
-              - "kms:TagResource"
+              - 'ssm:UpdateOpsItem'
+              - 'ssm:DeleteActivation'
               - "ec2:CopySnapshot"
               - "ec2:DeleteSnapshot"
               - "ec2:CreateImage"
+              - "ec2:CopyImage"
               - "ec2:CreateSnapshot*"
               - "ec2:DeleteVolume"
+              - "ec2:DetachVolume"
               - "ec2:DeregisterImage"
-              - "ec2:CreateTags"
-              - "ec2:DeleteTags"
+              - "ec2:EnableEbsEncryptionByDefault"
+              - "ec2:ResetImageAttribute"
               - "ec2:DeleteSecurityGroup"
               - "ec2:ModifyVpcAttribute"
               - "ec2:ModifyInstanceAttribute"
@@ -355,48 +452,137 @@ Resources:
               - "ec2:DisassociateIamInstanceProfile"
               - "ec2:AuthorizeSecurityGroupIngress"
               - "ec2:RevokeSecurityGroupIngress"
+              - 'ec2:ReleaseAddress'
+              - 'ec2:DisassociateAddress'
+              - 'ec2:DeleteNatGateway'
               - "ec2:StartInstances"
               - "ec2:StopInstances"
               - "ec2:TerminateInstances"
+              - "ec2:CreateFlowLogs"
+              - "ec2:ModifyNetworkInterfaceAttribute"
               - "config:PutEvaluations"
-              - "s3:PutBucketTagging"
               - "s3:PutBucketLogging"
               - "s3:PutBucketVersioning"
               - "s3:PutBucketPolicy"
+              - "s3:PutBucketAcl"
               - "s3:DeleteBucket*"
-              - "tag:TagResources"
-              - "tag:UntagResources"
-              - "lambda:TagResource"
-              - "lambda:UntagResource"
+              - "s3:PutReplicationConfiguration"
+              - "s3:PutBucketPublicAccessBlock"
+              - "s3:ListBucket"
+              - "s3:PutInventoryConfiguration"
+              - "s3:PutLifecycleConfiguration"
+              - "s3:PutEncryptionConfiguration"
               - "lambda:DeleteFunction"
-              - "elasticfilesystem:CreateTags"
-              - "elasticfilesystem:DeleteTags"
-              - "logs:TagLogGroup"
-              - "logs:UntagLogGroup"
-              - "rds:*TagsToResource"
               - "rds:Delete*"
-              - "rds:CreateDBSnapshot"
+              - "rds:CreateDB*Snapshot"
+              - "rds:CopyDBSnapshot"
               - "rds:Stop*"
+              - "rds:StartDBCluster"
+              - "rds:StartDBInstance"
+              - "rds:ModifyDBCluster"
+              - "rds:ModifyDBInstance"
+              - "rds:CopyDBParameterGroup"
+              - "rds:CopyDBClusterParameterGroup"
+              - 'rds:ModifyDBClusterParameterGroup'
               - "elasticache:*Snapshot"
               - "elasticache:DeleteCacheCluster"
+              - "elasticache:ModifyReplicationGroup"
+              - "elasticache:DeleteReplicationGroup"
               - "dynamodb:DeleteTable"
-              - "dynamodb:TagResource"
-              - "dynamodb:UntagResource"
               - "es:DeleteElasticsearchDomain"
-              - "es:*Tags"
+              - "es:UpdateElasticsearchDomainConfig"
               - "elasticmapreduce:TerminateJobFlows"
-              - "elasticmapreduce:*Tags"
               - "redshift:DeleteCluster"
-              - "redshift:*Tags"
+              - "redshift:PauseCluster"
+              - "redshift:ResumeCluster"
+              - "redshift:ModifyCluster"
+              - "redshift:CreateClusterSnapshot"
+              - "redshift:RevokeSnapshotAccess"
+              - "redshift:DeleteClusterSnapshot"
               - "autoscaling:DetachInstances"
-              - "autoscaling:*Tags"
-              - "autoscaling:*Processes"
               - "autoscaling:Terminate*"
               - "autoscaling:Set*"
               - "autoscaling:*Standby"
+              - "autoscaling:SuspendProcesses"
+              - "autoscaling:ResumeProcesses"
+              - "autoscaling:DeleteAutoScalingGroup"
+              - "autoscaling:DeleteLaunchConfiguration"
               - "kinesis:*Stream"
               - "kinesisanalytics:DeleteApplication"
               - "codebuild:BatchGetProjects"
+              - "sqs:SetQueueAttributes"
+              - "sqs:DeleteQueue"
+              - "states:StartExecution"
+              - "config:DeleteConfigRule"
+              - "logs:PutRetentionPolicy"
+              - "logs:DeleteLogGroup"
+              - "xray:PutEncryptionConfig"
+              - "glacier:SetVaultAccessPolicy"
+              - "glue:PutDataCatalogEncryptionSettings"
+              - "glue:Delete*"
+              - "waf-regional:AssociateWebACL"
+              - "elasticloadbalancing:ModifyLoadBalancerAttributes"
+              - "elasticloadbalancing:ModifyListener"
+              - "elasticloadbalancing:SetSecurityGroups"
+              - "elasticloadbalancing:DeleteTargetGroup"
+              - "elasticloadbalancing:ApplySecurityGroupsToLoadBalancer"
+              - "batch:DeleteComputeEnvironment"
+              - "batch:UpdateComputeEnvironment"
+              - "batch:DeregisterJobDefinition"
+              - "cloudfront:UpdateDistribution"
+              - "cloudsearch:DeleteDomain"
+              - "ecr:PutLifecyclePolicy"
+              - "ecr:DeleteLifecyclePolicy"
+              - "ecr:SetRepositoryPolicy"
+              - "ecs:UpdateService"
+              - "ecs:DeleteService"
+              - "ecs:StopTask"
+              - "ecs:DeregisterTaskDefinition"
+              - "ecs:UpdateContainerInstancesState"
+              - "ecs:UpdateContainerAgent"
+              - "elasticfilesystem:PutLifecycleConfiguration"
+              - "eks:UpdateClusterConfig"
+              - "eks:DeleteCluster"
+              - "elasticbeanstalk:TerminateEnvironment"
+              - "elasticmapreduce:TerminateJobFlows"
+              - "fsx:DeleteBackup"
+              - "fsx:UpdateFileSystem"
+              - "fsx:DeleteFileSystem"
+              - "fsx:CreateBackup"
+              - "iam:AddUserToGroup"
+              - "iam:RemoveUserFromGroup"
+              - "iam:AttachRolePolicy"
+              - "iam:DetachRolePolicy"
+              - "iam:DeleteRole"
+              - "iam:DeleteAccessKey"
+              - "iam:UpdateAccessKey"
+              - "kafka:UpdateClusterConfiguration"
+              - "kafka:DeleteCluster"
+              - "kinesis:UpdateShardCount"
+              - "kinesis:DeleteStream"
+              - "firehose:DeleteDeliveryStream"
+              - "firehose:UpdateDestination"
+              - "kinesisanalytics:DeleteApplication"
+              - "kms:PutKeyPolicy"
+              - "kms:EnableKeyRotation"
+              - "machinelearning:DeleteMLModel"
+              - "mq:DeleteBroker"
+              - "opsworks:StopStack"
+              - "opsworks-cm:DeleteServer"
+              - 'qldb:DeleteLedger'
+              - 'qldb:UpdateLedger'
+              - "sagemaker:StartNotebookInstance"
+              - 'sagemaker:StopNotebookInstance'
+              - 'sagemaker:DeleteNotebookInstance'
+              - 'sagemaker:DeleteModel'
+              - 'sagemaker:StopTrainingJob'
+              - 'sagemaker:DeleteEndpointConfig'
+              - 'sagemaker:StopTransformJob'
+              - 'shield:CreateProtection'
+              - 'sns:SetTopicAttributes'
+              - 'sns:DeleteTopic'
+              - 'sqs:RemovePermission'
+              - 'sqs:DeleteQueue'
             Resource: "*"
           -
             Sid: "CCSecurityHubActions"
@@ -404,9 +590,6 @@ Resources:
             Action:
               - "securityhub:UpdateFindings"
               - "securityhub:BatchImportFindings"
-              - "securityhub:CreateActionTarget"
-              - "securityhub:UpdateActionTarget"
-              - "securityhub:SendFindingEvents"
             Resource: "*"
           -
             Sid: "LambdasInVpc"
@@ -422,6 +605,63 @@ Resources:
               - "sts:AssumeRole"
             Resource:
               - !Sub 'arn:${AWS::Partition}:iam::*:role/CloudCustodianMember'
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: F5
+            reason: "Comfortable with these wildcards on part of action name"
+
+  CloudCustodianPolicyAuditFilters:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: "IAM Actions required to execute to Actions part of a CloudCustodian policies"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Sid: "SecurityAuditAdditionsUnsubmitted"
+            Effect: "Allow"
+            Action:
+              - "health:Describe*"
+              - "glue:GetJobs"
+              - "s3:GetInventoryConfiguration"
+              - "sns:ListTagsForResource"
+              - 'ssm:GetParameters'
+              - 'elasticache:ListTagsForResource'
+              - 'support:Describe*'
+              - 'greengrass:Get*'
+              - 'greengrass:List*'
+            Resource: "*"
+          -
+            Sid: "SecurityAuditAdditionsCASE6925812701"
+            Effect: "Allow"
+            Action:
+              - "dlm:Get*"
+              - "dlm:List*"
+              - "support:DescribeTrustedAdvisorCheckResult"
+              - "xray:GetEncryptionConfig"
+              - "ec2:GetEbsEncryptionByDefault"
+              - "glue:GetDataCatalogEncryptionSettings"
+              - "waf-regional:ListResourcesForWebACL"
+              - "ecr:GetLifecyclePolicy"
+              - "glacier:ListTagsForVault"
+              - "mq:List*"
+              - "opsworks:DescribeApps"
+              - "opsworks:DescribeLayers"
+            Resource: "*"
+          -
+            Sid: "SecurityAuditAdditionsCASE6921381241"
+            Effect: "Allow"
+            Action:
+              - "lambda:GetFunctionEventInvokeConfig"
+              - "schemas:Describe*"
+              - "schemas:List*"
+              - "iam:GenerateOrganizationsAccessReport"
+              - "detective:Get*"
+              - "detective:List*"
+              - "backup:Describe*"
+              - "backup:List*"
+            Resource: "*"
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -482,6 +722,8 @@ Resources:
         - Ref: "CliHostPolicy"
         - Ref: "CloudCustodianLambdaDeploymentManagedPolicy"
         - Ref: "CloudCustodianPolicyActions"
+        - Ref: "CloudCustodianPolicyAuditFilters"
+        - Ref: "TaggingPolicy"
       Tags:
         - Key: "CostCenter"
           Value: !Ref "CostCenter"
@@ -529,7 +771,9 @@ Resources:
         - !Sub 'arn:${AWS::Partition}:iam::aws:policy/SecurityAudit'
         - !Sub 'arn:${AWS::Partition}:iam::aws:policy/CloudWatchAgentServerPolicy'
         - Ref: "CloudCustodianPolicyActions"
+        - Ref: "CloudCustodianPolicyAuditFilters"
         - !Sub 'arn:${AWS::Partition}:iam::aws:policy/AWSXrayWriteOnlyAccess'
+        - Ref: "TaggingPolicy"
       Tags:
         - Key: "CostCenter"
           Value: !Ref "CostCenter"
@@ -554,6 +798,8 @@ Resources:
         - !Sub 'arn:${AWS::Partition}:iam::aws:policy/SecurityAudit'
         - !Sub 'arn:${AWS::Partition}:iam::aws:policy/CloudWatchAgentServerPolicy'
         - Ref: "CloudCustodianPolicyActions"
+        - Ref: "CloudCustodianPolicyAuditFilters"
+        - Ref: "TaggingPolicy"
         - !Sub 'arn:${AWS::Partition}:iam::aws:policy/AWSXrayWriteOnlyAccess'
       Tags:
         - Key: "CostCenter"
@@ -584,6 +830,8 @@ Resources:
         - !Sub 'arn:${AWS::Partition}:iam::aws:policy/CloudWatchAgentServerPolicy'
         - Ref: "CloudCustodianLambdaDeploymentManagedPolicy"
         - Ref: "CloudCustodianPolicyActions"
+        - Ref: "CloudCustodianPolicyAuditFilters"
+        - Ref: "TaggingPolicy"
         - !Sub 'arn:${AWS::Partition}:iam::aws:policy/AWSXrayWriteOnlyAccess'
       Tags:
         - Key: "CostCenter"
@@ -810,4 +1058,3 @@ Resources:
         -
           Key: CostCenter
           Value: !Ref "CostCenter"
-

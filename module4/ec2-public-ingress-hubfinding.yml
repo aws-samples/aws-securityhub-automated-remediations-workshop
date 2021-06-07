@@ -7,15 +7,16 @@ policies:
         role: arn:aws:iam::{account_id}:role/CloudCustodian
         member-role: arn:aws:iam::{account_id}:role/CloudCustodianMember
         memory: 128
-        packages: [botocore, boto3]
         concurrency: 1
         tags:
           CostCenter: SecurityHubWorkshop
           CreatedBy: CloudCustodian
+        pattern:
+          detail:
+            findings:
+              Resources:
+                "Type": ["AwsEc2Instance"]
     filters:
-      - type: event
-        key: detail.findings[0].Resources[0].Type
-        value: AwsEc2Instance
       - type: value
         key: PublicIpAddress
         value: not-null
@@ -46,3 +47,6 @@ policies:
       #  copy-tags: [Name]
       # Remove priviledges from the instance
       - type: set-instance-profile
+      #- type: tag 
+      #  key: Test
+      #  value: Gottcha
