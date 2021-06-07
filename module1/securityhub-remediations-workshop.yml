@@ -88,6 +88,13 @@ Parameters:
       - "False"
       - "True"
     Default: "True"
+  CreateAlarms:
+    Type: 'String'
+    Description: 'Boolean value which Defaults to True, controls if Alarms gets enabled'
+    AllowedValues:
+      - "False"
+      - "True"
+    Default: "False"
 Conditions:
   CreateCloud9Instance: !Equals [!Ref CreateCloud9Instance, "True"]
   EventEngine: !Equals [!Ref EventEngine, "True"]
@@ -98,6 +105,8 @@ Conditions:
   CreateCloudCustodianMemberRole: !Equals [!Ref CreateCloudCustodianMemberRole, "True"]
   CreateLogGroups: !Equals [!Ref CreateLogGroups, "True"]
   EnableCloudTrail: !Equals [!Ref EnableCloudTrail, "True"]
+  CreateAlarms: !Equals [!Ref CreateAlarms, "True"]
+  CreateTarget: !Not [!Equals [!Ref VpcId, "null"]]
 Metadata:
   cfn-lint:
     config:
@@ -201,6 +210,7 @@ Resources:
           Value: !Ref "CostCenter"
 
   TestTargetHighRiskPolicy:
+    Condition: CreateTarget
     Type: AWS::IAM::ManagedPolicy
     Properties:
       Description: "Allows reading objects from any bucket"
@@ -664,6 +674,7 @@ Resources:
             reason: "Comfortable with these wildcards on part of action name"
 
   TestTargetRole:
+    Condition: CreateTarget
     Type: AWS::IAM::Role
     Properties:
       RoleName: "SecurityHubRemediationWorkshopTestTarget"
@@ -737,6 +748,7 @@ Resources:
         - Ref: "CliInstance"
 
   TestTargetInstanceProfile:
+    Condition: CreateTarget
     Type: "AWS::IAM::InstanceProfile"
     Properties:
       InstanceProfileName: "SecurityHubRemediationWorkshopTestTarget"
@@ -833,6 +845,7 @@ Resources:
           Value: !Ref "CostCenter"
 
   RemediationTargetSG:
+    Condition: CreateTarget
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: "SecurityHub Remediation Test Target"
@@ -874,6 +887,7 @@ Resources:
             reason: "Same as above"
 
   RemediationTestTarget:
+    Condition: CreateTarget
     Type: AWS::EC2::Instance
     Properties:
       ImageId: !Ref "LatestAmiId"
@@ -893,6 +907,7 @@ Resources:
         - !Ref AWS::NoValue
 
   GeneratedFindingUser:
+    Condition: CreateTarget
     Type: AWS::IAM::User
     Properties:
       UserName: GeneratedFindingUserName
@@ -906,6 +921,7 @@ Resources:
             reason: "Test Purposes only"
 
   GeneratedFindingUserAccessKey:
+    Condition: CreateTarget
     DependsOn: GeneratedFindingUser
     Type: AWS::IAM::AccessKey
     Properties:
@@ -1053,65 +1069,3 @@ Resources:
         -
           Key: CostCenter
           Value: !Ref "CostCenter"
-  AlarmCustodianIamUserHubfindingRemediateDisable:
-    Type: AWS::CloudWatch::Alarm
-    Properties: 
-      ActionsEnabled: true
-      AlarmActions: 
-        - "arn:aws:sns:us-east-1:369510138361:lambdanotifications"
-      AlarmDescription: Error from Lambda
-      AlarmName: Error-custodian-iam-user-hubfinding-remediate-disable
-      ComparisonOperator: GreaterThanThreshold
-      DatapointsToAlarm: 1
-      Dimensions: 
-        - Name: FunctionName
-          Value: custodian-iam-user-hubfinding-remediate-disable
-      EvaluationPeriods: 1
-      MetricName: Errors
-      Namespace: AWS/Lambda
-      Period: 60
-      Statistic: Maximum
-      Threshold: 0.0
-      TreatMissingData: notBreaching
-
-  AlarmCustodianec2sechubremediateseveritywithfindings:
-    Type: AWS::CloudWatch::Alarm
-    Properties: 
-      ActionsEnabled: true
-      AlarmActions: 
-        - "arn:aws:sns:us-east-1:369510138361:lambdanotifications"
-      AlarmDescription: Error from Lambda
-      AlarmName: Error-custodian-ec2-sechub-remediate-severity-with-findings
-      ComparisonOperator: GreaterThanThreshold
-      DatapointsToAlarm: 1
-      Dimensions: 
-        - Name: FunctionName
-          Value: custodian-ec2-sechub-remediate-severity-with-findings
-      EvaluationPeriods: 1
-      MetricName: Errors
-      Namespace: AWS/Lambda
-      Period: 60
-      Statistic: Maximum
-      Threshold: 0.0
-      TreatMissingData: notBreaching
-
-  AlarmCustodianec2publicingresshubfinding:
-    Type: AWS::CloudWatch::Alarm
-    Properties: 
-      ActionsEnabled: true
-      AlarmActions: 
-        - "arn:aws:sns:us-east-1:369510138361:lambdanotifications"
-      AlarmDescription: Error from Lambda
-      AlarmName: Error-custodian-ec2-public-ingress-hubfinding
-      ComparisonOperator: GreaterThanThreshold
-      DatapointsToAlarm: 1
-      Dimensions: 
-        - Name: FunctionName
-          Value: custodian-ec2-public-ingress-hubfinding
-      EvaluationPeriods: 1
-      MetricName: Errors
-      Namespace: AWS/Lambda
-      Period: 60
-      Statistic: Maximum
-      Threshold: 0.0
-      TreatMissingData: notBreaching
