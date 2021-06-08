@@ -588,7 +588,7 @@ Resources:
             Effect: "Allow"
             Action:
               - "securityhub:UpdateFindings"
-              - "securityhub:BatchImportFindings"
+              - "securityhub:Batch*"
             Resource: "*"
           -
             Sid: "LambdasInVpc"
