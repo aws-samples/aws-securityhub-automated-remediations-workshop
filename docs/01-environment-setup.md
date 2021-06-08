@@ -5,7 +5,7 @@ To Get started with this workshop as part of the an AWS Event where Event Engine
 ## Getting Started at AWS event where the Event Engine is being used
 
 1.  Open https://dashboard.eventengine.run/login in a new Tab or Window to access the Event Engine Dashboard
-2.  Enter the team hash code that you were provided and click Proceed.
+2.  Enter the event hash code that you were provided and click Proceed.
 3.  Look for a section of the page labeled "Event Engine Team Role" then click "Open Console" button within the Login Link section
 4.  Make sure you are in the correct region.
 5.  Skip the ["Getting started using your own account"](#getting-started-using-your-own-account) and continue with the ["Manual Setup Steps"](#manual-setup-steps)
@@ -76,13 +76,13 @@ Here is a breakdown of the command you just ran:
 | -it | [interactive/foreground mode](https://docs.docker.com/engine/reference/run/#foreground) |
 | --rm | [clean up docker container when container exits](https://docs.docker.com/engine/reference/run/#clean-up----rm) |
 | --cap-drop ALL | Drop all Linux kernel capabilities as recommended in Rule #3 of the [Docker Security Cheat Sheet](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Docker_Security_Cheat_Sheet.md) |
-| -v /home/ec2-user/environment/securityhub-remediations:/home/custodian/securityhub-remediations:ro|map the files for the workshop into the container so the cloud custodian policies are available insider the container. volume is mapped in ReadOnly mode |
+| -v /home/ec2-user/environment/aws-securityhub-automated-remediations-workshop:/home/custodian/aws-securityhub-automated-remediations-workshop:ro|map the files for the workshop into the container so the cloud custodian policies are available insider the container. volume is mapped in ReadOnly mode |
 | -v /home/ec2-user/.aws:/home/custodian/.aws:ro | maps the [aws cli configuration files](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html) into the container in read-only mode.  Cloud Custodian uses the same configuration files, as both use the [boto3 Python SDK](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html) and sets the region |
 | ${SECHUBWORKSHOP_CONTAINER} | evaluates to cloudcustodian/c7n which is the docker container image which is downloaded from https://hub.docker.com/r/cloudcustodian/c7n |
 | run | instructs Cloud Custodian to run a policy. This is the first part of the command line which is passed to CloudCustodian |
 | --cache-period 0 | disables cloud custodian's caching of api call results |
 | -s /tmp | specifies the directory where log and resource data is placed |
-| -c securityhub-remediations/module1/force-vulnerability-finding.yml | specifies the actual policy to run |
+| -c aws-securityhub-automated-remediations-workshop/module1/force-vulnerability-finding.yml | specifies the actual policy to run |
 
 9.  If you received the expected output lines, congratulations, you have successfully tested the environment setup by having Cloud Custodian submit a finding to Security Hub.  Proceed to the next module.
 
