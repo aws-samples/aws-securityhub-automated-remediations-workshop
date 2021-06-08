@@ -1,11 +1,11 @@
 # Module 4 - Automated Remediations - Vulnerability Event on EC2 Instance with a High Risk Configuration
-1.  Run the following command, which invokes Cloud Custodian to run a policy named [ec2-public-ingress-hubfinding](https://github.com/FireballDWF/securityhub-remediations/blob/master/module4/ec2-public-ingress-hubfinding.yml) which filters for a high risk configuation (Details TODO).
+1.  Run the following command, which invokes Cloud Custodian to run a policy named [ec2-public-ingress-hubfinding](https://github.com/aws-samples/aws-securityhub-automated-remediations-workshop/blob/master/module4/ec2-public-ingress-hubfinding.yml) which filters for a high risk configuation.
 
-        ${CLOUDCUSTODIANDOCKERCMD} securityhub-remediations/module4/ec2-public-ingress-hubfinding.yml
+        ${CLOUDCUSTODIANDOCKERCMD} aws-securityhub-automated-remediations-workshop/module4/ec2-public-ingress-hubfinding.yml
 
 2.  Run the following command to trigger an finding event in Security Hub on the with the resource being the RemediationTestTarget instance.
 
-        ${CLOUDCUSTODIANDOCKERCMD} securityhub-remediations/module1/force-vulnerability-finding.yml
+        ${CLOUDCUSTODIANDOCKERCMD} aws-securityhub-automated-remediations-workshop/module1/force-vulnerability-finding.yml
 
 3.  Review the CloudWatch Log to observe that actions listed in the policy were invoked, and you can verify by using the console to view that the instance doesn't have an IAM Profile associated anymore and that a Snapshot was taken.
 4.  Now run the following command to re-associate the InstanceProfile so the instance is ready for the next module.
