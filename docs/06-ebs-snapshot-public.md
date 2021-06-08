@@ -7,7 +7,7 @@ This module will show how to setup an automated detection of a EBS Snaspshot tha
 
 2. Then deploy the automated detection policy by running the following command:
 
-        ${CLOUDCUSTODIANDOCKERCMD} securityhub-remediations/module6/post-ebs-snapshot-public.yml
+        ${CLOUDCUSTODIANDOCKERCMD} aws-securityhub-automated-remediations-workshop/module6/post-ebs-snapshot-public.yml
 
 3. Skip to the next step if you are using an AWS Event provided account.  Only if you have ebs-encryption-by-default enabled, you will need to disabling it for purposes of this module, by runiing the following:
 
@@ -38,7 +38,7 @@ This module will show how to setup an automated detection of a EBS Snaspshot tha
 11. Next step is to configure the policy to after it auto-remediates the finding, to auto-archived the findiing.  Make this change by using the Cloud9 IDE to open "module6/post-ebs-snapshot-public.yml" then uncommenting line 63 by deleting the hash.
 11. Save the file in the IDE then run the following command which redeploys the policy:
 
-        ${CLOUDCUSTODIANDOCKERCMD} securityhub-remediations/module6/post-ebs-snapshot-public.yml
+        ${CLOUDCUSTODIANDOCKERCMD} aws-securityhub-automated-remediations-workshop/module6/post-ebs-snapshot-public.yml
 
 12. Next run the following commands to make the snapshot public again to generate a finding, wait, then remediate the finding:
 
@@ -61,7 +61,7 @@ This module will show how to setup an automated detection of a EBS Snaspshot tha
    Uncomment line 29 by removing the single hash such that the dash should be in column 7.
 10. Save the file in the IDE then run the following command which redeploys the policy:
 
-        ${CLOUDCUSTODIANDOCKERCMD} securityhub-remediations/module6/post-ebs-snapshot-public.yml
+        ${CLOUDCUSTODIANDOCKERCMD} aws-securityhub-automated-remediations-workshop/module6/post-ebs-snapshot-public.yml
 
 12. Run the following three commands:
 
@@ -87,7 +87,7 @@ This module will show how to setup an automated detection of a EBS Snaspshot tha
 15. Save the file.
 16. Deploy the updated policy
 
-        ${CLOUDCUSTODIANDOCKERCMD} securityhub-remediations/module6/post-ebs-snapshot-public.yml
+        ${CLOUDCUSTODIANDOCKERCMD} aws-securityhub-automated-remediations-workshop/module6/post-ebs-snapshot-public.yml
 
 17. Run the following command noticing that this time it's created with a Tag key and value which matches the filter specified.
 
