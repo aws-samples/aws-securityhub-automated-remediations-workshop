@@ -35,19 +35,7 @@ This module will show how to setup an automated detection of a EBS Snaspshot tha
 9. After about 20 seconds, refresh the Security Hub's console, looking for the same finding's Status column value now be "PASSED", or refresh every 10-20 seconds until it does change.
    The 2nd policy contained in the policy file deployed in this module detected that the snapshot was no longer public, so it invoked the action post-finding, setting the compliance status to PASSED and due to setting the finding's title to be the same as that of the policy that reported the failure, an update to the prior finding was performed, then the 2nd action was to remove the finding_id from the resource so that any future reoccurance of it being made public will be treated as a new finding.
 10. Click the checkbox to the left of the Finding then click the button "Workflow status" and select "Resolved".
-11. Next step is to configure the policy to after it auto-remediates the finding, to auto-archived the findiing.  Make this change by using the Cloud9 IDE to open "module6/post-ebs-snapshot-public.yml" then uncommenting line 63 by deleting the hash.
-11. Save the file in the IDE then run the following command which redeploys the policy:
 
-        ${CLOUDCUSTODIANDOCKERCMD} aws-securityhub-automated-remediations-workshop/module6/post-ebs-snapshot-public.yml
-
-12. Next run the following commands to make the snapshot public again to generate a finding, wait, then remediate the finding:
-
-        aws ec2 modify-snapshot-attribute --snapshot-id $WorkshopSnapshotId --attribute createVolumePermission --operation-type add --group-names all
-        sleep 10
-        aws ec2 modify-snapshot-attribute --snapshot-id $WorkshopSnapshotId --attribute createVolumePermission --operation-type remove --group-names all
-
-13. After about 20 seconds, refresh the Security Hub's console, and notice the finding does not even appear.
-    To see that it did in fact get created, click the X after the "Record state EQUALS ACTIVE" then it should appear.
 9. Now test a custom action by clicking the checkbox for the finding then click the dropdown for Actions then select "Ebs-Snapshot Delete" (This custom action is one of the ones deployed in Module 3).
 8. Confirm the snapshot got deleted by running:
 
