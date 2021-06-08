@@ -43,10 +43,7 @@ policies:
         value: RemediationTestTarget
     actions:
       # snapshot the disk for forensics
-      #- type: snapshot
-      #  copy-tags: [Name]
+      - type: snapshot
+        copy-tags: [Name]
       # Remove priviledges from the instance
       - type: set-instance-profile
-      #- type: tag 
-      #  key: Test
-      #  value: Gottcha
