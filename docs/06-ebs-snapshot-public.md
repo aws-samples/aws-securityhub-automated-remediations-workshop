@@ -34,7 +34,7 @@ This module will show how to setup an automated detection of a EBS Snaspshot tha
 
 9. After about 20 seconds, refresh the Security Hub's console, looking for the same finding's Status column value now be "PASSED", or refresh every 10-20 seconds until it does change.
    The 2nd policy contained in the policy file deployed in this module detected that the snapshot was no longer public, so it invoked the action post-finding, setting the compliance status to PASSED and due to setting the finding's title to be the same as that of the policy that reported the failure, an update to the prior finding was performed, then the 2nd action was to remove the finding_id from the resource so that any future reoccurance of it being made public will be treated as a new finding.
-10. Click the checkbox to the left of the Finding then click the Actions button and select "Archive".
+10. Click the checkbox to the left of the Finding then click the button "Workflow status" and select "Resolved".
 11. Next step is to configure the policy to after it auto-remediates the finding, to auto-archived the findiing.  Make this change by using the Cloud9 IDE to open "module6/post-ebs-snapshot-public.yml" then uncommenting line 63 by deleting the hash.
 11. Save the file in the IDE then run the following command which redeploys the policy:
 
