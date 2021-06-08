@@ -235,10 +235,9 @@ Resources:
             Sid: "SecurityEngineering"
             Effect: "Allow"
             Action:
-              - "securityhub:EnableSecurityHub"
+              - "securityhub:Enable*"
               - "guardduty:CreateDetector"
               - "cloudformation:ValidateTemplate"
-              - "events:TestEventPattern"
             Resource: "*"
           -
             Sid: "SecurityAnalyst"
@@ -623,14 +622,9 @@ Resources:
             Effect: "Allow"
             Action:
               - "health:Describe*"
-              - "glue:GetJobs"
-              - "s3:GetInventoryConfiguration"
-              - "sns:ListTagsForResource"
               - 'ssm:GetParameters'
-              - 'elasticache:ListTagsForResource'
               - 'support:Describe*'
               - 'greengrass:Get*'
-              - 'greengrass:List*'
             Resource: "*"
           -
             Sid: "SecurityAuditAdditionsCASE6925812701"
@@ -638,14 +632,8 @@ Resources:
             Action:
               - "dlm:Get*"
               - "dlm:List*"
-              - "support:DescribeTrustedAdvisorCheckResult"
-              - "xray:GetEncryptionConfig"
               - "ec2:GetEbsEncryptionByDefault"
-              - "glue:GetDataCatalogEncryptionSettings"
-              - "waf-regional:ListResourcesForWebACL"
-              - "ecr:GetLifecyclePolicy"
               - "glacier:ListTagsForVault"
-              - "mq:List*"
               - "opsworks:DescribeApps"
               - "opsworks:DescribeLayers"
             Resource: "*"
@@ -653,9 +641,6 @@ Resources:
             Sid: "SecurityAuditAdditionsCASE6921381241"
             Effect: "Allow"
             Action:
-              - "lambda:GetFunctionEventInvokeConfig"
-              - "schemas:Describe*"
-              - "schemas:List*"
               - "iam:GenerateOrganizationsAccessReport"
               - "detective:Get*"
               - "detective:List*"

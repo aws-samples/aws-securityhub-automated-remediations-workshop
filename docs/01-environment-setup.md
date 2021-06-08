@@ -33,7 +33,7 @@ To Get started with this workshop as part of the an AWS Event where Event Engine
 10. Enable a Cloudtrail in the region, if you don't then module6 won't work.
 
 ## Manual Setup Steps
-1.  Open the Cloud9 IDE which provides the ability to review files and execute commands in a browser based terminal window.  Starting from the main AWS Management Console, within the "Find Services" textbox, type "Cloud9" then hit Enter.
+1.  Open the Cloud9 IDE which provides the ability to review files and execute commands in a browser based terminal window.  Starting from the main AWS Management Console, within the "Search for Services..." textbox at the top, type "Cloud9" then hit Enter.
 2.  Now click the "Open IDE" button.
 3.  In the bottom part of the browser tab which opens up, look for a tab with a label starting with "bash", where the window contents contain "~/environment $".  This is the browser based terminal session you'll use for the rest of the workshop for any command line steps.
 
@@ -45,7 +45,11 @@ To Get started with this workshop as part of the an AWS Event where Event Engine
 
         aws securityhub enable-security-hub
 
-6.  The next step is to get a copy of the files required for this workshop by cloning the workshop's github repo specifing the eventengine branch.
+5.  Run the following command to enable the integration of Cloud Custodian with SecurityHub, unless you are using your own account and know that it's already enabled. If you have full unresticted Admin Access, and get an error, then the most likely reason is that it is already enabled.  If using a region other than us-west-2, replace the us-west-2 part of the arn with the region you are using.
+
+        aws securityhub enable-import-findings-for-product --product-arn "arn:aws:securityhub:us-west-2::product/cloud-custodian/cloud-custodian"
+
+6.  The next step is to get a copy of the files required for this workshop by cloning the workshop's github repo.
 
         git clone --single-branch --branch master https://github.com/aws-samples/aws-securityhub-automated-remediations-workshop.git
 
@@ -53,11 +57,11 @@ To Get started with this workshop as part of the an AWS Event where Event Engine
 
         export SECHUBWORKSHOP_CONTAINER=cloudcustodian/c7n
         docker pull ${SECHUBWORKSHOP_CONTAINER}
-        export CLOUDCUSTODIANDOCKERCMD="docker run -it --rm --cap-drop ALL -v /home/ec2-user/environment/securityhub-remediations:/home/custodian/securityhub-remediations:ro -v /home/ec2-user/.aws:/home/custodian/.aws:rw ${SECHUBWORKSHOP_CONTAINER} run --cache-period 0 -s /tmp -c"
+        export CLOUDCUSTODIANDOCKERCMD="docker run -it --rm --cap-drop ALL -v /home/ec2-user/environment/aws-securityhub-automated-remediations-workshop:/home/custodian/aws-securityhub-automated-remediations-workshop:ro -v /home/ec2-user/.aws:/home/custodian/.aws:rw ${SECHUBWORKSHOP_CONTAINER} run --cache-period 0 -s /tmp -c"
 
 8.  This step tests the environment by invoking a Cloud Custodian Policy which reports that an ec2 instance has a vulnerability.
 
-        ${CLOUDCUSTODIANDOCKERCMD} securityhub-remediations/module1/force-vulnerability-finding.yml
+        ${CLOUDCUSTODIANDOCKERCMD} aws-securityhub-automated-remediations-workshop/module1/force-vulnerability-finding.yml
 
     You should expect to see 2 output lines, one containing "count:1" and another containing "resources:1", similar to the following output.  If you get an error on "batch-import-findings" then it means SecurityHub has not been enabled.  Example output is from us-east-1, however your results should indicate the region being used for the workshop event.
 
