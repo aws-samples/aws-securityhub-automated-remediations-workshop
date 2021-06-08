@@ -9,7 +9,7 @@ This module will show how to setup an automated detection of a EBS Snaspshot tha
 
         ${CLOUDCUSTODIANDOCKERCMD} aws-securityhub-automated-remediations-workshop/module6/post-ebs-snapshot-public.yml
 
-3. Skip to the next step if you are using an AWS Event provided account.  Only if you have ebs-encryption-by-default enabled, you will need to disabling it for purposes of this module, by runiing the following:
+3. Skip to the next step if you are using an AWS Event provided account.  Only if you have ebs-encryption-by-default enabled, you will need to disabling it for purposes of this module, by running the following:
 
         aws ec2 disable-ebs-encryption-by-default
 
